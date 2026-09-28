@@ -6,6 +6,7 @@ This project contains:
 - **React/Vite frontend** in `frontend/`
 - **TensorFlow model** in `final_model_kaggle_version1/`
 - **SQLite database** created automatically at `data/dermcare.sqlite3`
+- **Supabase/PostgreSQL schema** in `supabase_schema.sql` for hosted deployments
 
 The recommended development setup uses two local servers:
 
@@ -34,6 +35,17 @@ final_model_kaggle_version1/group1-shard4of4
 ```
 
 ## 2. Open the project
+
+## 2a. Create the Supabase database
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Open **SQL Editor**, paste the contents of `supabase_schema.sql`, and run it.
+3. In **Project Settings > Database**, copy the URI connection string.
+4. Copy `.env.example` to `.env` and set `SUPABASE_DATABASE_URL`.
+
+The current app keeps SQLite as the local development fallback. The Supabase schema is ready for the backend migration, and the database URI must remain server-side. Do not place it in `frontend/.env` or commit `.env`.
+
+For production, create a private Storage bucket called `dermcare-scans` and store only object paths in `scans.image_path`. Keep the service-role key server-side.
 
 
 ## 3. Create and activate the Python environment
