@@ -14,9 +14,7 @@ const backendUrl = (url) => {
 // const api = async (url, options = {}) => { const response = await fetch(url, options); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.detail || 'Something went wrong'); return data; };
 // ------------------------------------------------
 // update this part for the deployment purpose
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || ""
-).replace(/\/$/, "");
+const API_BASE_URL = "";
 
 const api = async (url, options = {}) => {
   const response = await fetch(`${API_BASE_URL}${url}`, {
