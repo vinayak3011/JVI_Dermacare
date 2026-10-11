@@ -12,7 +12,7 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Annotated
-
+from fastapi import Response
 from fastapi import Cookie, Depends, FastAPI, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -31,8 +31,10 @@ DATABASE = DATA_DIR / "dermcare.sqlite3"
 SUPABASE_DATABASE_URL = os.getenv("SUPABASE_DATABASE_URL")
 STATIC_DIR = ROOT / "static"
 FRONTEND_DIST = ROOT / "frontend" / "dist"
-DEFAULT_MODEL = ROOT / "final_model_kaggle_version1" / "model.json"
-SESSION_SECRET = secrets.token_bytes(32)
+SESSION_SECRET = os.getenv(
+    "SESSION_SECRET",
+    "local-development-only-change-me",
+).encode("utf-8")
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MODEL = None
 PREDICT_IMAGE = None
@@ -218,13 +220,41 @@ def register(
     return {"user": public_user(user)}
 
 
+
 @app.post("/api/auth/login")
-def login(email: Annotated[str, Form()], password: Annotated[str, Form()]) -> dict[str, object]:
+def login(
+    response: Response,
+    email: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+) -> dict[str, object]:
     with connection() as database:
-        user = database.execute("SELECT * FROM users WHERE email = ?", (email.strip().lower(),)).fetchone()
+        user = database.execute(
+            "SELECT * FROM users WHERE email = ?",
+            (email.strip().lower(),),
+        ).fetchone()
+
     if not user or not password_matches(password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Email or password is incorrect")
-    return {"user": public_user(user), "session": make_session(user["id"])}
+        raise HTTPException(
+            status_code=401,
+            detail="Email or password is incorrect",
+        )
+
+    session_token = make_session(user["id"])
+
+    response.set_cookie(
+        key="session",
+        value=session_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        max_age=60 * 60 * 24 * 7,
+        path="/",
+    )
+
+    return {
+        "user": public_user(user),
+        "session": session_token,
+    }
 
 
 @app.get("/api/auth/me")
