@@ -38,6 +38,19 @@ MODEL = None
 PREDICT_IMAGE = None
 
 app = FastAPI(title="DermCare")
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://dermacare-git-main-vinayakvilaspure30-4793s-projects.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 FRONTEND_DIST.mkdir(parents=True, exist_ok=True)
 app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets") if (FRONTEND_DIST / "assets").exists() else None
 
