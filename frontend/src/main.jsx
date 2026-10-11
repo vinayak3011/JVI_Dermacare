@@ -3,7 +3,30 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-const api = async (url, options = {}) => { const response = await fetch(url, options); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.detail || 'Something went wrong'); return data; };
+// const api = async (url, options = {}) => { const response = await fetch(url, options); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.detail || 'Something went wrong'); return data; };
+// ------------------------------------------------
+// update this part for the deployment purpose
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || ""
+).replace(/\/$/, "");
+
+const api = async (url, options = {}) => {
+  const response = await fetch(`${API_BASE_URL}${url}`, {
+    ...options,
+    credentials: "include",
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Something went wrong");
+  }
+
+  return data;
+};
+// ---------------------------------
+
+
 const percent = (value) => Math.round(value * 100);
 
 function Auth({ onLogin }) {
