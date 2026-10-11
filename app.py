@@ -25,6 +25,14 @@ from dotenv import load_dotenv
 load_dotenv(ROOT / ".env.local")
 load_dotenv(ROOT / ".env")
 
+ROOT = Path(__file__).resolve().parent
+
+# Path to the TensorFlow.js model
+DEFAULT_MODEL = ROOT / "final_model_kaggle_version1" / "model.json"
+
+MODEL = None
+PREDICT_IMAGE = None
+
 DATA_DIR = ROOT / "data"
 UPLOAD_DIR = DATA_DIR / "uploads"
 DATABASE = DATA_DIR / "dermcare.sqlite3"
